@@ -1,0 +1,164 @@
+---
+title: "Homework3"
+author: "Aaron Marshall"
+date: "2023-10-18"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Part A
+```{r}
+library(tidyverse)
+urlA = "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/ThicknessGauge.dat"
+dataA<-read.table(urlA, header=F, skip=0, fill=T, stringsAsFactors = F)
+dataAFixed <- dataA[-c(1:2),]
+dataA2 <- dataAFixed %>% pivot_longer(cols = c(V2,V4,V6), names_to = "Operator", values_to = "Measurement One")
+dataA3 <- dataAFixed %>% pivot_longer(cols = c(V3,V5,V7), names_to = "Operator2", values_to = "Measurement Two")
+dataA4 <- cbind(dataA2,dataA3)
+dataA5 <- dataA4[,c(1,5,6,12)]
+colnames(dataA5)= c("Part", "Operator", "Measurement One", "Measurement Two")
+for (i in 1:nrow(dataA5)) {
+  if(i%%3==1){
+    dataA5[i,2]=1
+  } else{
+    if(i%%3==2){
+      dataA5[i,2]=2
+    } else{
+      dataA5[i,2]=3
+    }
+  }
+}
+dataA5$Part <- as.factor(dataA5$Part)
+dataA5$Operator <- as.factor(dataA5$Operator)
+summary(dataA5)
+plot(dataA5$Operator, dataA5$`Measurement One`, 
+     main = "Measurement One Based on Operator", xlab = "Operator Number", 
+     ylab = "Thickness")
+  
+```
+
+Part B
+```{r}
+urlB = "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BrainandBodyWeight.dat"
+dataB<-read.table(urlB, header=T, skip=0, fill=T, stringsAsFactors = F)
+dataBFixed <- dataB[,1:6]
+FirstBody <- dataB[,1:2]
+SecondBody <- dataB[,3:4]
+ThirdBody <- dataB[,5:6]
+colnames(FirstBody) = c("Body Wt", "Brain Wt")
+colnames(SecondBody) = c("Body Wt", "Brain Wt")
+colnames(ThirdBody) = c("Body Wt", "Brain Wt")
+dataB2 <- rbind(FirstBody,SecondBody,ThirdBody)
+dataB3 <- dataB2[-63,]
+summary(dataB3)
+plot(dataB3$`Body Wt`,dataB3$`Brain Wt`, main = "Body Weight vs Brain Weight", 
+     xlab = "Body Wt", ylab = "Brain Weight", pch = 16)
+
+
+```
+
+Part C
+```{r}
+urlC = "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/LongJumpData.dat"
+dataC<-read.table(urlC, header=T, skip=0, fill=T, stringsAsFactors = F)
+dataCFixed <- dataC[,1:8]
+FirstJump <- dataCFixed[,1:2]
+SecondJump <- dataCFixed[,3:4]
+ThirdJump <- dataCFixed[,5:6]
+FourthJump <- dataCFixed[,7:8]
+colnames(FirstJump) = c("Year", "Long Jump")
+colnames(SecondJump) = c("Year", "Long Jump")
+colnames(ThirdJump) = c("Year", "Long Jump")
+colnames(FourthJump) = c("Year", "Long Jump")
+dataC2 <- rbind(FirstJump,SecondJump,ThirdJump,FourthJump)
+dataC3 <- dataC2[1:22,]
+dataC3$Year <- dataC3$Year+1900
+summary(dataC3)
+plot(dataC3$`Year`,dataC3$`Long Jump`, main = "Year vs Long Jump", 
+     xlab = "Year", ylab = "Long Jump", pch = 16)
+
+```
+
+Part D
+```{r}
+urlD = "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/tomato.dat"
+dataD<-read.table(urlD, header=F, skip=0, fill=T, stringsAsFactors = F,
+                  comment.char ="")
+dataDFixed <- dataD[3:4,1:4]
+dataD2 <- dataDFixed %>% pivot_longer(cols = V2:V4, 
+                                      names_to = "Plant Density", 
+                                      values_to = "Yield")
+dataD3 <- dataD2 %>% 
+          separate(col = "Yield", 
+                  into = c("Measurement One", "Measurement Two", "Measurement Three"), 
+                          sep = ",")
+for (i in 1:nrow(dataD3)) {
+  if(i%%3==1){
+    dataD3[i,2]="10000"
+  } else{
+    if(i%%3==2){
+      dataD3[i,2]="20000"
+    } else{
+      dataD3[i,2]="30000"
+    }
+  }
+}
+colnames(dataD3) = c("Variety","Plant Density","Measurement One","Measurement Two", "Measurement Three")
+dataD3$Variety <- as.factor(dataD3$Variety)
+dataD3$`Plant Density` <- as.factor(dataD3$`Plant Density`)
+dataD3$`Measurement One` <- as.double(dataD3$`Measurement One`)
+dataD3$`Measurement Two` <- as.double(dataD3$`Measurement Two`)
+dataD3$`Measurement Three` <- as.double(dataD3$`Measurement Three`)
+summary(dataD3)
+plot(dataD3$Variety,dataD3$`Measurement One`, 
+     main = "First Yield Measurement by Variety", xlab = "Variety",
+     ylab = "Yield")
+
+
+```
+
+Part E
+```{r}
+urlE = "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/LarvaeControl.dat"
+dataE<-read.table(urlE, header=F, skip=0, fill=T, stringsAsFactors = F)
+dataEFixed <- dataE[4:11,]
+dataEFixed$V2 <- as.double(dataEFixed$V2)
+dataEFixed$V3 <- as.double(dataEFixed$V3)
+dataE2 <- dataEFixed %>% pivot_longer(cols = c(V2:V11), 
+                                      names_to = "Treatment", 
+                                      values_to = "Count")
+Age <- c(rep(c(1,1,1,1,1,2,2,2,2,2),8))
+dataE3 <- cbind(dataE2, Age)
+colnames(dataE3) <- c("Block", "Treatment", "Count", "Age")
+for (i in 1:nrow(dataE3)) {
+  if(i%%5==1){
+    dataE3[i,2]=1
+  } else{
+    if(i%%5==2){
+      dataE3[i,2]=2
+    } else{
+      if(i%%5==3){
+        dataE3[i,2]=3  
+      } else{
+        if(i%%5==4){
+          dataE3[i,2]=4
+        } else{
+          dataE3[i,2]=5
+        }
+      }
+    }
+  }
+}
+dataE3$Block <- as.factor(dataE3$Block)
+dataE3$Treatment <- as.factor(dataE3$Treatment)
+summary(dataE3)
+plot(dataE3$Treatment,dataE3$Count,main = "Larvae Counts in Each Treatment", 
+     xlab = "Treatment", ylab = "Count")
+
+
+```
